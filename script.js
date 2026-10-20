@@ -105,9 +105,30 @@ function acceptQR(v) {
   if (!v.startsWith("AICTE:") || v.length < 7) { setBox("qr-msg", "That is not a valid event code.", "bad"); return false; }
   check.qr = v.slice(6).trim(); setBox("qr-msg", "✅ Event: " + check.qr, "ok"); updateSubmit(); return true;
 }
-function makeQR(el, text) {
+// Loads a QR library on demand, trying several sources (CDNs first, then a local copy).
+const LIBS = {
+  jsQR: ["https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js", "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js", "jsQR.js"],
+  QRCode: ["https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js", "https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js", "qrcode.min.js"],
+};
+function loadLib(name) {
+  return new Promise((resolve) => {
+    if (window[name]) return resolve(true);
+    let i = 0;
+    const next = () => {
+      if (i >= LIBS[name].length) return resolve(false);
+      const s = document.createElement("script");
+      s.src = LIBS[name][i++];
+      s.onload = () => (window[name] ? resolve(true) : next());
+      s.onerror = () => { s.remove(); next(); };
+      document.head.appendChild(s);
+    };
+    next();
+  });
+}
+async function makeQR(el, text) {
   el.innerHTML = "";
-  if (typeof QRCode === "undefined") { el.textContent = "QR library not loaded. Check your internet connection."; return; }
+  if (!(await loadLib("QRCode"))) { el.textContent = "Could not load the QR library. Check your internet connection."; return; }
+  el.innerHTML = "";
   new QRCode(el, { text, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
 }
 function stopQR() {
@@ -117,8 +138,11 @@ function stopQR() {
 $("qr-btn").onclick = async () => {
   if (scanning) { stopQR(); return setBox("qr-msg", "QR scanner inactive."); }
   const native = "BarcodeDetector" in window;
-  if (!native && typeof jsQR === "undefined")
-    return setBox("qr-msg", "Scanner library not loaded. Check your internet or type the code below.", "bad");
+  if (!native) {
+    setBox("qr-msg", "Loading scanner…");
+    if (!(await loadLib("jsQR")))
+      return setBox("qr-msg", "Could not load the scanner library (network may be blocking it). Type the code below instead.", "bad");
+  }
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
     const v = $("video"); v.srcObject = stream; v.hidden = false; await v.play();
