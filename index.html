@@ -4,42 +4,90 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AICTE Activity Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="container">
-    <section id="login-view" class="card">
-      <h1>Welcome back</h1>
-      <p class="subtitle">Log in to track your AICTE activity points.</p>
-      <form id="login-form" novalidate>
-        <label for="username">Username</label>
-        <input id="username" type="text" autocomplete="username" placeholder="e.g. aditi" required>
-        <label for="password">Password</label>
-        <div class="password-row">
-          <input id="password" type="password" autocomplete="current-password" placeholder="Your password" required>
-          <button type="button" id="toggle-password" class="ghost" aria-label="Show or hide password">Show</button>
-        </div>
-        <p id="login-error" class="error" role="alert" hidden></p>
-        <button type="submit" id="login-btn" class="primary">Log in</button>
-        <p class="hint">Demo login: <strong>aditi</strong> / <strong>demo123</strong></p>
-      </form>
-    </section>
-
-    <section id="dashboard-view" class="card" hidden>
-      <header class="dash-header">
-        <div><p class="subtitle">Student</p><h1 id="student-name">Loading…</h1></div>
-        <button id="logout-btn" class="ghost">Log out</button>
-      </header>
-      <div class="points"><span id="points" class="points-big">0</span><span class="points-target">/ <span id="target">100</span> points</span></div>
-      <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress"><div id="bar" class="progress-fill"></div></div>
-      <p id="goal-message" class="goal-message" hidden>Target reached! Great work 🎉</p>
-      <button id="checkin-btn" class="primary big">Check in</button>
-      <p class="checkin-count"><strong id="checkin-count">0</strong> check-ins so far</p>
-      <h2>Recent check-ins</h2>
-      <ul id="recent-list" class="recent-list"><li class="empty">No check-ins yet.</li></ul>
-    </section>
-  </main>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="script.js"></script>
+<header class="top noprint">
+  <div class="brand"><div class="logo">A</div><h1>AICTE Activity Tracker</h1></div>
+  <nav class="tabs">
+    <button id="tab-student" class="active">Student</button>
+    <button id="tab-faculty">Faculty / Mentor</button>
+  </nav>
+</header>
+ 
+<main>
+  <!-- STUDENT -->
+  <section id="student">
+    <div class="hero">
+      <div>
+        <p class="eyebrow">Welcome back, Aditi</p>
+        <h2 id="hero-title"></h2>
+        <p class="sub">Check in at events with GPS, QR and a photo to earn points.</p>
+      </div>
+      <div class="ring">
+        <svg viewBox="0 0 120 120"><circle class="rbg" cx="60" cy="60" r="52"/><circle id="rfill" class="rfill" cx="60" cy="60" r="52"/></svg>
+        <div class="rtext"><b id="rpts">0</b><small>of 100</small></div>
+      </div>
+    </div>
+ 
+    <div class="stats noprint">
+      <div class="card stat s-blue"><span>🎯</span><p>Points left</p><b id="left">0</b></div>
+      <div class="card stat s-green"><span>✅</span><p>Approved activities</p><b id="approved">0</b></div>
+      <div class="card stat s-orange"><span>🚦</span><p>Semester status</p><em id="status" class="pill"></em></div>
+    </div>
+ 
+    <div class="grid3 noprint">
+      <div class="card">
+        <h3>📍 Venue check-in</h3>
+        <p class="muted">Allow location access to confirm you're inside the event venue.</p>
+        <button id="gps-btn" class="btn">Start GPS tracking</button>
+        <div id="gps-msg" class="box">Location not started.</div>
+      </div>
+      <div class="card">
+        <h3>📱 QR check-in</h3>
+        <p class="muted">Scan the event QR code shown at the venue.</p>
+        <button id="qr-btn" class="btn">Start QR scanner</button>
+        <video id="video" playsinline muted hidden></video>
+        <div id="qr-msg" class="box">QR scanner inactive.</div>
+        <div class="row"><input id="qr-code" placeholder="or type code, e.g. AICTE:Tech Talk"><button id="qr-use" class="btn ghost">Use</button></div>
+      </div>
+      <div class="card">
+        <h3>📸 Photo check-in</h3>
+        <p class="muted">Take a photo at the event as proof of attendance.</p>
+        <label class="btn" for="photo">Take / choose photo</label>
+        <input id="photo" type="file" accept="image/*" capture="environment" hidden>
+        <div id="photo-msg" class="box">No photo yet.</div>
+        <img id="preview" alt="Event photo preview" hidden>
+      </div>
+    </div>
+    <button id="submit" class="btn wide noprint" disabled>Complete all three check-ins to submit</button>
+ 
+    <div class="grid2">
+      <div class="card">
+        <h3>📋 Activity point ledger</h3>
+        <table><thead><tr><th>Activity</th><th>Category</th><th>Points</th><th>Status</th></tr></thead><tbody id="ledger"></tbody></table>
+      </div>
+      <div class="card noprint">
+        <h3>📊 Points by category</h3>
+        <svg id="donut" viewBox="0 0 200 200"></svg>
+        <div id="legend" class="legend"></div>
+      </div>
+    </div>
+    <button id="transcript" class="cta noprint">Download transcript (PDF)</button>
+  </section>
+ 
+  <!-- FACULTY -->
+  <section id="faculty" hidden>
+    <div class="card">
+      <h3>🧑‍🏫 Pending approvals</h3>
+      <table><thead><tr><th>Student</th><th>Activity</th><th>Category</th><th>Points</th><th></th></tr></thead><tbody id="pending"></tbody></table>
+    </div>
+  </section>
+</main>
+ 
+<div id="toast"></div>
+<script src="script.js"></script>
 </body>
 </html>
+ 
