@@ -79,6 +79,8 @@
         <video id="video" playsinline muted hidden></video>
         <div id="qr-msg" class="box">QR scanner inactive.</div>
         <div class="row"><input id="qr-code" placeholder="or type code, e.g. AICTE:Tech Talk"><button id="qr-use" class="btn ghost">Use</button></div>
+        <button id="qr-demo" class="linkbtn" type="button">Show a test QR code</button>
+        <div id="qr-test" class="qrbox" hidden></div>
       </div>
       <div class="card">
         <h3>📸 Photo check-in</h3>
@@ -86,4 +88,45 @@
         <label class="btn" for="photo">Take / choose photo</label>
         <input id="photo" type="file" accept="image/*" capture="environment" hidden>
         <div id="photo-msg" class="box">No photo yet.</div>
-        <img id="preview"
+        <img id="preview" alt="Event photo preview" hidden>
+      </div>
+    </div>
+    <button id="submit" class="btn wide noprint" disabled>Complete all three check-ins to submit</button>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>📋 Activity point ledger</h3>
+        <table><thead><tr><th>Activity</th><th>Category</th><th>Points</th><th>Status</th></tr></thead><tbody id="ledger"></tbody></table>
+      </div>
+      <div class="card noprint">
+        <h3>📊 Points by category</h3>
+        <svg id="donut" viewBox="0 0 200 200"></svg>
+        <div id="legend" class="legend"></div>
+      </div>
+    </div>
+    <button id="transcript" class="cta noprint">Download transcript (PDF)</button>
+  </section>
+
+  <!-- FACULTY -->
+  <section id="faculty" hidden>
+    <div class="card noprint">
+      <h3>🔳 Event QR code</h3>
+      <p class="muted">Create the QR code to show at the venue. Students scan it to check in.</p>
+      <div class="row"><input id="ev-name" value="Tech Talk" placeholder="Event name"><button id="ev-gen" class="btn">Generate</button></div>
+      <div id="ev-qr" class="qrbox"></div>
+      <p id="ev-text" class="muted"></p>
+    </div>
+    <div class="card">
+      <h3>🧑‍🏫 Pending approvals</h3>
+      <table><thead><tr><th>Student</th><th>Activity</th><th>Category</th><th>Points</th><th></th></tr></thead><tbody id="pending"></tbody></table>
+    </div>
+  </section>
+</main>
+</div>
+
+<div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
