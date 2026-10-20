@@ -107,7 +107,7 @@ function acceptQR(v) {
 }
 // Loads a QR library on demand, trying several sources (CDNs first, then a local copy).
 const LIBS = {
-  jsQR: ["https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js", "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js", "jsQR.js"],
+  jsQR: ["https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js", "https://unpkg.com/jsqr@1.4.0/dist/jsQR.js", "jsQR.js"],
   QRCode: ["https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js", "https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js", "qrcode.min.js"],
 };
 function loadLib(name) {
