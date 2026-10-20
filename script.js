@@ -5,7 +5,7 @@ const CHECKIN_POINTS = 10;
 // With lat = null, any detected location counts as "inside" (demo mode).
 const VENUE = { lat: null, lng: null, radius: 200 };
 const COLORS = { NSS: "#2f4fe0", Sports: "#f08a24", Innovation: "#2e8b2e", Technical: "#8b5cf6", Event: "#06b6d4" };
- 
+
 const $ = (id) => document.getElementById(id);
 const seed = [
   { id: 1, name: "NSS Camp", category: "NSS", points: 20, status: "Approved" },
@@ -16,16 +16,16 @@ const seed = [
 let acts = JSON.parse(localStorage.getItem(KEY) || "null") || seed;
 let check = { gps: false, qr: null, photo: false };
 let toastTimer, watchId = null, stream = null, scanning = false;
- 
+
 const save = () => localStorage.setItem(KEY, JSON.stringify(acts));
 const approvedPts = () => acts.filter((a) => a.status === "Approved").reduce((s, a) => s + a.points, 0);
- 
+
 function toast(msg) {
   const t = $("toast"); t.textContent = msg; t.className = "show";
   clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.className = ""), 2800);
 }
 function setBox(id, msg, kind = "") { const b = $(id); b.textContent = msg; b.className = "box " + kind; }
- 
+
 /* ---------- Render ---------- */
 function render() {
   const pts = approvedPts(), left = Math.max(0, TARGET - pts);
@@ -37,10 +37,10 @@ function render() {
   const st = $("status");
   st.className = "pill " + (left === 0 ? "ok" : pts < 40 ? "bad" : "");
   st.textContent = left === 0 ? "Target met" : pts < 40 ? "Behind schedule" : "Nearing deadline";
- 
+
   $("ledger").innerHTML = acts.map((a) =>
     `<tr><td>${esc(a.name)}</td><td>${esc(a.category)}</td><td>${a.points}</td><td><span class="tag ${a.status}">${a.status}</span></td></tr>`).join("");
- 
+
   // donut of approved points by category
   const by = {};
   acts.filter((a) => a.status === "Approved").forEach((a) => (by[a.category] = (by[a.category] || 0) + a.points));
@@ -52,7 +52,7 @@ function render() {
   });
   $("donut").innerHTML = svg;
   $("legend").innerHTML = Object.keys(by).map((c) => `<span><i style="background:${COLORS[c] || "#888"}"></i>${esc(c)} (${by[c]})</span>`).join("") || "No approved points yet.";
- 
+
   // faculty list
   const pend = acts.filter((a) => a.status === "Pending");
   $("pending").innerHTML = pend.length ? pend.map((a) =>
@@ -61,7 +61,7 @@ function render() {
     : `<tr><td colspan="5" class="muted">No pending approvals.</td></tr>`;
 }
 function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
- 
+
 /* ---------- Tabs ---------- */
 function tab(student) {
   $("student").hidden = !student; $("faculty").hidden = student;
@@ -70,13 +70,13 @@ function tab(student) {
 }
 $("tab-student").onclick = () => tab(true);
 $("tab-faculty").onclick = () => tab(false);
- 
+
 $("pending").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-id]"); if (!b) return;
   const a = acts.find((x) => x.id === Number(b.dataset.id));
   if (a) { a.status = b.dataset.do; save(); render(); toast(a.name + " " + a.status.toLowerCase() + "."); }
 });
- 
+
 /* ---------- Check-in: GPS ---------- */
 function dist(a, b, c, d) {
   const R = 6371000, r = Math.PI / 180, dLa = (c - a) * r, dLo = (d - b) * r;
@@ -99,7 +99,7 @@ $("gps-btn").onclick = () => {
     updateSubmit();
   }, (err) => setBox("gps-msg", "Could not get location: " + err.message, "bad"), { enableHighAccuracy: true });
 };
- 
+
 /* ---------- Check-in: QR ---------- */
 function acceptQR(v) {
   if (!v.startsWith("AICTE:") || v.length < 7) return setBox("qr-msg", "That is not a valid event code.", "bad");
@@ -125,14 +125,14 @@ $("qr-btn").onclick = async () => {
   } catch (e) { setBox("qr-msg", "Camera unavailable: " + e.message, "bad"); }
 };
 $("qr-use").onclick = () => acceptQR($("qr-code").value.trim());
- 
+
 /* ---------- Check-in: photo ---------- */
 $("photo").onchange = (e) => {
   const f = e.target.files[0]; if (!f) return;
   const img = $("preview"); img.src = URL.createObjectURL(f); img.hidden = false;
   check.photo = true; setBox("photo-msg", "✅ Photo added.", "ok"); updateSubmit();
 };
- 
+
 /* ---------- Submit ---------- */
 function updateSubmit() {
   const ok = check.gps && check.qr && check.photo, b = $("submit");
@@ -147,8 +147,48 @@ $("submit").onclick = () => {
   if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; $("gps-btn").textContent = "Start GPS tracking"; }
   updateSubmit(); render(); toast("Submitted. Waiting for faculty approval.");
 };
- 
+
 $("transcript").onclick = () => window.print();
- 
+
 render(); updateSubmit();
- 
+
+/* ---------- Login ---------- */
+const SESSION_KEY = "aicte_session";
+const USERS = {
+  aditi: { password: "demo123", name: "Aditi Singh", role: "student" },
+  faculty: { password: "demo123", name: "Faculty Mentor", role: "faculty" },
+};
+
+function enter(user) {
+  $("login-view").hidden = true; $("app").hidden = false;
+  $("welcome").textContent = "Welcome back, " + user.name.split(" ")[0];
+  const student = user.role === "student";
+  $("tab-student").hidden = !student; $("tab-faculty").hidden = student;
+  tab(student); render(); updateSubmit(); window.scrollTo(0, 0);
+}
+function leave() {
+  localStorage.removeItem(SESSION_KEY);
+  if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; $("gps-btn").textContent = "Start GPS tracking"; }
+  stopQR();
+  check = { gps: false, qr: null, photo: false };
+  setBox("gps-msg", "Location not started."); setBox("qr-msg", "QR scanner inactive."); setBox("photo-msg", "No photo yet.");
+  $("preview").hidden = true; updateSubmit();
+  $("app").hidden = true; $("login-view").hidden = false; $("login-form").reset(); $("login-error").hidden = true;
+}
+
+$("toggle-pw").onclick = () => {
+  const p = $("password"), show = p.type === "password";
+  p.type = show ? "text" : "password"; $("toggle-pw").textContent = show ? "Hide" : "Show";
+};
+$("login-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const name = $("username").value.trim().toLowerCase(), u = USERS[name], err = $("login-error");
+  if (!u || u.password !== $("password").value) {
+    err.textContent = "Invalid username or password."; err.hidden = false; return;
+  }
+  err.hidden = true; localStorage.setItem(SESSION_KEY, name); enter(u);
+});
+$("logout").onclick = () => { leave(); toast("Logged out."); };
+
+const saved = USERS[localStorage.getItem(SESSION_KEY)];
+if (saved) enter(saved);
