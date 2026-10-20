@@ -96,3 +96,10 @@ td { padding: 12px 6px; border-top: 1px solid var(--border); }
   .lhero { padding: 32px 24px 48px; } .lhero h1 { font-size: 1.6rem; }
   .lcard { margin: -20px auto 32px; }
 }
+
+/* QR codes */
+.qrbox { display: flex; justify-content: center; padding: 12px; background: #fff; border: 1px solid var(--border); border-radius: 10px; }
+.qrbox:empty { display: none; }
+.qrbox canvas { display: none; }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--blue); font: inherit; font-size: .85rem; font-weight: 600; cursor: pointer; text-align: left; }
+.linkbtn:hover { text-decoration: underline; }
