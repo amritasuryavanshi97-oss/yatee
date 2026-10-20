@@ -8,12 +8,40 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<!-- LOGIN -->
+<div id="login-view" class="login">
+  <aside class="lhero">
+    <div class="logo">A</div>
+    <h1>AICTE Activity Tracker</h1>
+    <p>Check in at events, earn activity points and track your progress to 100.</p>
+    <ul><li>📍 GPS venue check-in</li><li>📱 QR and photo proof</li><li>📊 Live points ledger</li></ul>
+  </aside>
+  <section class="card lcard">
+    <h2>Welcome back</h2>
+    <p class="muted">Log in to continue.</p>
+    <form id="login-form" novalidate>
+      <label for="username">Username</label>
+      <input id="username" autocomplete="username" placeholder="e.g. aditi">
+      <label for="password">Password</label>
+      <div class="row">
+        <input id="password" type="password" autocomplete="current-password" placeholder="Your password">
+        <button type="button" id="toggle-pw" class="btn ghost">Show</button>
+      </div>
+      <p id="login-error" class="lerr" role="alert" hidden></p>
+      <button type="submit" class="btn full">Log in</button>
+    </form>
+    <p class="muted hint">Demo: <b>aditi</b> / <b>demo123</b> (student)<br><b>faculty</b> / <b>demo123</b> (mentor)</p>
+  </section>
+</div>
+ 
+<div id="app" hidden>
 <header class="top noprint">
   <div class="brand"><div class="logo">A</div><h1>AICTE Activity Tracker</h1></div>
-  <nav class="tabs">
+  <div class="right"><nav class="tabs">
     <button id="tab-student" class="active">Student</button>
     <button id="tab-faculty">Faculty / Mentor</button>
   </nav>
+  <button id="logout" class="btn ghost">Log out</button></div>
 </header>
  
 <main>
@@ -21,7 +49,7 @@
   <section id="student">
     <div class="hero">
       <div>
-        <p class="eyebrow">Welcome back, Aditi</p>
+        <p class="eyebrow" id="welcome">Welcome back</p>
         <h2 id="hero-title"></h2>
         <p class="sub">Check in at events with GPS, QR and a photo to earn points.</p>
       </div>
@@ -85,6 +113,7 @@
     </div>
   </section>
 </main>
+</div>
  
 <div id="toast"></div>
 <script src="script.js"></script>
