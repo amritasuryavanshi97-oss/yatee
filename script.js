@@ -102,8 +102,13 @@ $("gps-btn").onclick = () => {
 
 /* ---------- Check-in: QR ---------- */
 function acceptQR(v) {
-  if (!v.startsWith("AICTE:") || v.length < 7) return setBox("qr-msg", "That is not a valid event code.", "bad");
-  check.qr = v.slice(6).trim(); setBox("qr-msg", "✅ Event: " + check.qr, "ok"); updateSubmit();
+  if (!v.startsWith("AICTE:") || v.length < 7) { setBox("qr-msg", "That is not a valid event code.", "bad"); return false; }
+  check.qr = v.slice(6).trim(); setBox("qr-msg", "✅ Event: " + check.qr, "ok"); updateSubmit(); return true;
+}
+function makeQR(el, text) {
+  el.innerHTML = "";
+  if (typeof QRCode === "undefined") { el.textContent = "QR library not loaded. Check your internet connection."; return; }
+  new QRCode(el, { text, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
 }
 function stopQR() {
   scanning = false; if (stream) stream.getTracks().forEach((t) => t.stop());
@@ -111,20 +116,44 @@ function stopQR() {
 }
 $("qr-btn").onclick = async () => {
   if (scanning) { stopQR(); return setBox("qr-msg", "QR scanner inactive."); }
-  if (!("BarcodeDetector" in window)) return setBox("qr-msg", "This browser can't scan QR codes. Type the code below instead.", "bad");
+  const native = "BarcodeDetector" in window;
+  if (!native && typeof jsQR === "undefined")
+    return setBox("qr-msg", "Scanner library not loaded. Check your internet or type the code below.", "bad");
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
     const v = $("video"); v.srcObject = stream; v.hidden = false; await v.play();
     scanning = true; $("qr-btn").textContent = "Stop scanner"; setBox("qr-msg", "Point the camera at the QR code…");
-    const det = new BarcodeDetector({ formats: ["qr_code"] });
+    const det = native ? new BarcodeDetector({ formats: ["qr_code"] }) : null;
+    const cv = document.createElement("canvas"), cx = cv.getContext("2d", { willReadFrequently: true });
     (async function tick() {
       if (!scanning) return;
-      try { const r = await det.detect(v); if (r.length) { acceptQR(r[0].rawValue); return stopQR(); } } catch (_) {}
+      try {
+        let val = null;
+        if (det) { const r = await det.detect(v); if (r.length) val = r[0].rawValue; }
+        else if (v.videoWidth) {
+          cv.width = v.videoWidth; cv.height = v.videoHeight; cx.drawImage(v, 0, 0);
+          const im = cx.getImageData(0, 0, cv.width, cv.height), c = jsQR(im.data, im.width, im.height);
+          if (c) val = c.data;
+        }
+        if (val && acceptQR(val)) return stopQR();
+      } catch (_) {}
       requestAnimationFrame(tick);
     })();
   } catch (e) { setBox("qr-msg", "Camera unavailable: " + e.message, "bad"); }
 };
 $("qr-use").onclick = () => acceptQR($("qr-code").value.trim());
+$("qr-demo").onclick = () => {
+  const box = $("qr-test");
+  box.hidden = !box.hidden;
+  $("qr-demo").textContent = box.hidden ? "Show a test QR code" : "Hide test QR code";
+  if (!box.hidden) makeQR(box, "AICTE:Tech Talk");
+};
+$("ev-gen").onclick = () => {
+  const name = $("ev-name").value.trim();
+  if (!name) return toast("Enter an event name first.");
+  makeQR($("ev-qr"), "AICTE:" + name);
+  $("ev-text").textContent = "Code: AICTE:" + name;
+};
 
 /* ---------- Check-in: photo ---------- */
 $("photo").onchange = (e) => {
