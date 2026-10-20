@@ -33,7 +33,7 @@
     <p class="muted hint">Demo: <b>aditi</b> / <b>demo123</b> (student)<br><b>faculty</b> / <b>demo123</b> (mentor)</p>
   </section>
 </div>
- 
+
 <div id="app" hidden>
 <header class="top noprint">
   <div class="brand"><div class="logo">A</div><h1>AICTE Activity Tracker</h1></div>
@@ -43,7 +43,7 @@
   </nav>
   <button id="logout" class="btn ghost">Log out</button></div>
 </header>
- 
+
 <main>
   <!-- STUDENT -->
   <section id="student">
@@ -58,13 +58,13 @@
         <div class="rtext"><b id="rpts">0</b><small>of 100</small></div>
       </div>
     </div>
- 
+
     <div class="stats noprint">
       <div class="card stat s-blue"><span>🎯</span><p>Points left</p><b id="left">0</b></div>
       <div class="card stat s-green"><span>✅</span><p>Approved activities</p><b id="approved">0</b></div>
       <div class="card stat s-orange"><span>🚦</span><p>Semester status</p><em id="status" class="pill"></em></div>
     </div>
- 
+
     <div class="grid3 noprint">
       <div class="card">
         <h3>📍 Venue check-in</h3>
@@ -86,37 +86,4 @@
         <label class="btn" for="photo">Take / choose photo</label>
         <input id="photo" type="file" accept="image/*" capture="environment" hidden>
         <div id="photo-msg" class="box">No photo yet.</div>
-        <img id="preview" alt="Event photo preview" hidden>
-      </div>
-    </div>
-    <button id="submit" class="btn wide noprint" disabled>Complete all three check-ins to submit</button>
- 
-    <div class="grid2">
-      <div class="card">
-        <h3>📋 Activity point ledger</h3>
-        <table><thead><tr><th>Activity</th><th>Category</th><th>Points</th><th>Status</th></tr></thead><tbody id="ledger"></tbody></table>
-      </div>
-      <div class="card noprint">
-        <h3>📊 Points by category</h3>
-        <svg id="donut" viewBox="0 0 200 200"></svg>
-        <div id="legend" class="legend"></div>
-      </div>
-    </div>
-    <button id="transcript" class="cta noprint">Download transcript (PDF)</button>
-  </section>
- 
-  <!-- FACULTY -->
-  <section id="faculty" hidden>
-    <div class="card">
-      <h3>🧑‍🏫 Pending approvals</h3>
-      <table><thead><tr><th>Student</th><th>Activity</th><th>Category</th><th>Points</th><th></th></tr></thead><tbody id="pending"></tbody></table>
-    </div>
-  </section>
-</main>
-</div>
- 
-<div id="toast"></div>
-<script src="script.js"></script>
-</body>
-</html>
- 
+        <img id="preview"
